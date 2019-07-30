@@ -1,0 +1,93 @@
+100 REM BASIC Month 4: Lunar Corps
+110 REM http://reddit.com/r/RetroBattlestations
+120 REM written by FozzTexx
+200 REM Clear screen and setup variables
+210 MODE 2:x=1:y=25:GOSUB 1010
+220 peaks$=" /\_"
+230 cols=79:rows=24
+240 RANDOMIZE TIME
+300 GOSUB 2510
+310 ys=SQR(2)*SQR(rows-tl+zl)-1
+320 xe=INT((ze-zs)/2)+zs
+330 xv=xe/ys:yv=0
+340 lx=1:ly=1
+400 GOSUB 2010:lm$=sp$
+410 GOSUB 2010:ml$=sp$:le$=se$
+420 FOR i=1 TO INT(ys)
+430 sp$=le$:x=lx:y=ly:GOSUB 1510
+440 yv=yv+1
+450 lx=lx+xv:ly=ly+yv
+460 sp$=lm$:IF i>=ys-2 THEN sp$=ml$
+470 x=lx:y=ly:GOSUB 1510
+480 FOR j=1 TO 400:NEXT j
+490 NEXT i
+500 sp$=le$:x=lx:y=ly:GOSUB 1510
+510 lx=(ze-zs)/2+zs-1:ly=rows-tl+zl
+520 sp$=lm$:x=lx:y=ly:GOSUB 1510
+530 sp$="The Eagle has landed":x=(cols-LEN(sp$))/2:y=rows/2:GOSUB 1510
+999 END
+1000 REM Position cursor at X,Y
+1010 LOCATE INT(x),INT(y)
+1020 RETURN
+1500 REM Draw sprite in SP$ at X,Y
+1510 se=1:sb=1
+1520 IF x<1 OR x>cols OR y<1 OR y>rows THEN RETURN
+1530 se=INSTR(sb,sp$,CHR$(13))
+1540 IF se=0 THEN se=LEN(sp$)+1
+1550 GOSUB 1010
+1560 sl=se-sb:IF sl+x-1>cols THEN sl=cols-x+1
+1570 PRINT MID$(sp$,sb,sl);
+1580 IF se>=LEN(sp$) THEN RETURN
+1590 IF ASC(MID$(sp$,se))=13 THEN se=se+1
+1600 sb=se:y=y+1:GOTO 1520
+2000 REM Load a sprite from DATA into SP$
+2010 sp$="":se$="":sr=0:sc=0
+2020 READ t$,s$:IF LEN(sp$)>0 THEN sp$=sp$+CHR$(13)
+2030 sp$=sp$+s$:sr=sr+1:IF LEN(s$)>sc THEN sc=LEN(s$)
+2040 bl$=SPACE$(LEN(s$))
+2050 IF LEN(se$)>0 THEN se$=se$+CHR$(13)
+2060 se$=se$+bl$
+2070 IF t$<>"SE" THEN 2020
+2080 RETURN
+2500 REM Draw lunar surface
+2510 didup=0:l1$="":FOR i=1 TO cols+4:l1$=l1$+" ":NEXT i
+2520 zs=0:ze=0:tl=0
+2530 l2$="  ":up=didup: IF NOT up AND MID$(l1$,3,1)<>" " THEN up=1
+2540 IF NOT didup AND up THEN didup=up
+2550 z1=0:z2=0
+2560 FOR i=3 TO cols+2:PRINT".";CHR$(8);
+2570 c1$=MID$(l2$,i-2,1):c2$=MID$(l2$,i-1,1)
+2580 c3$=MID$(l1$,i-1,1):c4$=MID$(l1$,i,1)
+2590 c5$=MID$(l1$,i+1,1):c6$=MID$(l1$,i+2,1)
+2600 IF peak=0 AND MID$(l1$,i-1,4)="    " THEN peak=INT(RND(1)*3):peak=peak+(peak=2)*-1:peak=peak*INT(RND(1)*2)
+2610 IF c2$="/" AND c4$=" " THEN peak=2
+2620 IF (c1$="_" OR c1$="\") AND c2$=" " THEN peak=0
+2630 IF c4$<>" " THEN peak=0
+2640 IF (c3$="\" OR c3$="_") AND c4$=" " THEN peak=2
+2650 IF c2$="_" AND c6$="/" THEN peak=3
+2660 IF (c2$="\" OR c2$=" " OR c2$="_") AND c4$=" " AND (c5$="_" OR c5$="/") THEN peak=1
+2670 IF c2$="\" AND c6$<>" " THEN peak=3
+2680 IF (c5$="/" OR c5$="_") THEN peak=1
+2690 IF c4$<>" " THEN peak=0
+2700 IF up AND peak<>2 THEN peak=0
+2710 IF peak=1 THEN up=1
+2720 IF peak=2 THEN up=0
+2730 p$=MID$(peaks$,peak+1,1):PRINT p$;:l2$=l2$+p$
+2740 IF peak=3 AND z1=0 THEN z1=i
+2750 IF peak<>3 AND c2$="_" THEN z2=i
+2760 IF z1 AND z2 THEN z3=z1:z4=z2:z1=0:z2=0:IF z4-z3 >= 3 AND z3>zs THEN zs=z3:ze=z4:zl=tl
+2770 IF peak<>3 OR (c1$="_" AND c2$="_") THEN peak=0
+2780 NEXT
+2790 l1$=l2$
+2800 c2=0
+2810 FOR i=3 TO cols+2
+2820 IF MID$(l1$,i,1)=" " THEN c2=c2+1
+2830 NEXT
+2840 tl=tl+1
+2850 IF c2<cols THEN PRINT:GOTO 2530
+2860 zs=zs-2:ze=ze-2:RETURN
+9000 DATA SP,"(I)"
+9010 DATA SE,"/T\"
+9020 DATA SP,"(I)"
+9030 DATA SP,"/T\"
+9040 DATA SE," V "
